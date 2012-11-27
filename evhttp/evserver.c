@@ -8,10 +8,19 @@
 void generic_handler(struct evhttp_request *req, void *arg)
 {
 	struct evbuffer *buf;
+	struct evkeyvalq *input_headers;
+        struct evkeyval *header;
 	buf = evbuffer_new();
 	if (buf == NULL)
 		err(1, "failed to create response buffer");
-	evbuffer_add_printf(buf, "Requested: %sn", evhttp_request_uri(req));
+	input_headers = req->input_headers;
+
+        TAILQ_FOREACH(header, input_headers, next) {
+			printf("%s :", header->key );
+			printf("%s \n", header->value );
+        }
+
+	evbuffer_add_printf(buf, "Requested: %s\n", evhttp_request_uri(req));
 	evhttp_send_reply(req, HTTP_OK, "OK", buf);
 }
 int main(int argc, char **argv)
